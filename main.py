@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
-from pyrogram import Client, filters, types
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 import requests
 import json
 import re
@@ -48,7 +49,7 @@ def validition_url(url):
 # message handler
 # get only text messages from private chats
 @app.on_message(filters.text & filters.private)
-async def message_handler(client : Client, message : types.Message):
+async def message_handler(client : Client, message : Message):
     # check the url pattern
     text = message.text
     if not validition_url(text):
@@ -59,9 +60,15 @@ async def message_handler(client : Client, message : types.Message):
         links = get_video_links(text)
     except Exception as e:
         print(e)
-        return message.reply("an error occurred !")
+        return await message.reply("an error occurred !")
+    # create inline url keyboard
+    keyboard = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(f'link {indx+1}', url=link)] for indx, link in enumerate(links)]
+    )
+    # make hyperlinks
+    links = [f'[link {indx+1}]({link})' for indx, link in enumerate(links)]
     # output
-    await message.reply("\n".join(links))
+    await message.reply(", ".join(links), reply_markup=keyboard)
 
 
 if __name__ == "__main__":
