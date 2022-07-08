@@ -1,30 +1,12 @@
-from bs4 import BeautifulSoup
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from config import *
-import requests
-import json
+from Linkedin import Linkedin
 import re
 
 # configuration
 app = Client("linkedbot", api_id=api_id, api_hash=api_hash, bot_token=bot_token, proxy=proxy)
 
-
-# functions
-def get_video_links(url : str):
-    #send request
-    response = requests.get(url)
-    # check status
-    if response.status_code in range(400, 500):
-        raise ValueError("Page not found error !")
-    # parse the response
-    soup = BeautifulSoup(response.content, "html.parser")
-    # get the video links
-    json_data = soup.find('video')['data-sources']
-    json_data = json.loads(json_data)[1:]
-    links = [item['src'] for item in json_data]
-    # out
-    return links
 
 # check validition url
 def validition_url(url):
@@ -55,7 +37,8 @@ async def message_handler(client : Client, message : Message):
     
     # get the video links of video
     try:
-        links = get_video_links(text)
+        linkedin = Linkedin(text)
+        links = linkedin.get_post_data()
     except Exception as e:
         print(e)
         return await msg.edit("an error occurred !")
