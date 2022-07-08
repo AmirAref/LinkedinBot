@@ -39,9 +39,13 @@ async def message_handler(client : Client, message : Message):
     try:
         linkedin = Linkedin(text)
         post = linkedin.get_post_data()
+    except ValueError:
+        return await msg.edit("🌐 Page not found !")
+    except KeyError:
+        return await msg.edit("❌ Post not found !")
     except Exception as e:
         print(e)
-        return await msg.edit("an error occurred !")
+        return await msg.edit("❗️ an error occurred !")
     # create inline keyboard
     _post_details = [
         [InlineKeyboardButton(text=f"👍 {post.likes}", callback_data='.'), InlineKeyboardButton(text=f"💬 {post.comments}", callback_data='.'), ],

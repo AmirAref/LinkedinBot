@@ -17,6 +17,9 @@ class Linkedin():
         # parse the response
         soup = BeautifulSoup(response.content, "html.parser")
         post_section = soup.find('section', attrs={'class':'section'})
+        # check the post section is exists
+        if not post_section:
+            raise KeyError('post not exists !')
         # create post object
         post = Post()
         # post text
