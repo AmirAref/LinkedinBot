@@ -16,13 +16,14 @@ class Linkedin():
             raise ValueError("Page not found error !")
         # parse the response
         soup = BeautifulSoup(response.content, "html.parser")
+        post_section = soup.find('section', attrs={'class':'section'})
         # create post object
         post = Post()
         # post text
-        post.text = soup.find('p', attrs={'class':'share-update-card__update-text'}).text
+        post.text = post_section.find('p', attrs={'class':'share-update-card__update-text'}).text
         
         # get post details
-        post_detail = soup.find('div', attrs={'class':'social-action-counts'})
+        post_detail = post_section.find('div', attrs={'class':'social-action-counts'})
         # get count of likes
         _likes = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_likes-text'})
         post.likes = _likes.text.strip() if _likes else 0
@@ -33,9 +34,10 @@ class Linkedin():
         post.likes, post.comments = int(post.likes), int(post.comments)
         
         # get the video links
-        _json_data = soup.find('video', attrs={'class':'video-js'})
-        _json_data = json.loads(_json_data['data-sources'])[1:]
-        post.videos = [item['src'] for item in _json_data]
+        _json_data = post_section.find('video', attrs={'class':'video-js'})
+        if _json_data:
+            _json_data = json.loads(_json_data['data-sources'])[1:]
+            post.videos = [item['src'] for item in _json_data]
         # out
         return post
 
@@ -45,4 +47,4 @@ class Post:
         self.text : str = None
         self.likes : int = None
         self.comments : int = None
-        self.videos : list[str]= None
+        self.videos : list[str]= []
