@@ -33,6 +33,11 @@ class Linkedin():
         # convert to integer
         post.likes, post.comments = int(post.likes), int(post.comments)
         
+        # extract the post images
+        _image_list = soup.find('ul', attrs={'class':'share-images'})
+        if _image_list:
+            post.images = [item.find('img')['data-delayed-url'] for item in _image_list.find_all('li')]
+        
         # get the video links
         _json_data = post_section.find('video', attrs={'class':'video-js'})
         if _json_data:
@@ -47,4 +52,5 @@ class Post:
         self.text : str = None
         self.likes : int = None
         self.comments : int = None
+        self.images : list[str]= []
         self.videos : list[str]= []

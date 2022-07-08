@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto, Message
 from config import *
 from Linkedin import Linkedin
 import re
@@ -49,7 +49,11 @@ async def message_handler(client : Client, message : Message):
     _video_links = [[InlineKeyboardButton(f'video link {indx+1}', url=link)] for indx, link in enumerate(post.videos)]
     keyboard = InlineKeyboardMarkup(_post_details + _video_links)
     # output
-    await msg.edit(post.text, reply_markup=keyboard)
+    output = await msg.edit(post.text, reply_markup=keyboard)
+    
+    # upload images
+    if post.images:
+        await client.send_media_group(message.chat.id, [InputMediaPhoto(image) for image in post.images], reply_to_message_id=output.id)
 
 
 if __name__ == "__main__":
