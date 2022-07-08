@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+import re
 
 class Linkedin():
     def __init__(self, url : str) -> None:
@@ -19,6 +20,18 @@ class Linkedin():
         post = Post()
         # post text
         post.text = soup.find('p', attrs={'class':'share-update-card__update-text'}).text
+        
+        # get post details
+        post_detail = soup.find('div', attrs={'class':'social-action-counts'})
+        # get count of likes
+        _likes = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_likes-text'})
+        post.likes = _likes.text.strip() if _likes else 0
+        # get count of comments
+        _comments = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_comments-text'})
+        post.comments = re.search('\d+', _comments.text.strip()).group() if _comments else 0 # extract the number
+        # convert to integer
+        post.likes, post.comments = int(post.likes), int(post.comments)
+        
         # get the video links
         _json_data = soup.find('video', attrs={'class':'video-js'})
         _json_data = json.loads(_json_data['data-sources'])[1:]
@@ -30,4 +43,6 @@ class Post:
     def __init__(self) -> None:
         self.url : str = None
         self.text : str = None
+        self.likes : int = None
+        self.comments : int = None
         self.videos : list[str]= None

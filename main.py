@@ -42,10 +42,12 @@ async def message_handler(client : Client, message : Message):
     except Exception as e:
         print(e)
         return await msg.edit("an error occurred !")
-    # create inline url keyboard
-    keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton(f'video link {indx+1}', url=link)] for indx, link in enumerate(post.videos)]
-    )
+    # create inline keyboard
+    _post_details = [
+        [InlineKeyboardButton(text=f"👍 {post.likes}", callback_data='.'), InlineKeyboardButton(text=f"💬 {post.comments}", callback_data='.'), ],
+        ]
+    _video_links = [[InlineKeyboardButton(f'video link {indx+1}', url=link)] for indx, link in enumerate(post.videos)]
+    keyboard = InlineKeyboardMarkup(_post_details + _video_links)
     # output
     await msg.edit(post.text, reply_markup=keyboard)
 
