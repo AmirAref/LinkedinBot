@@ -1,17 +1,13 @@
 from bs4 import BeautifulSoup
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from config import *
 import requests
 import json
 import re
 
 # configuration
-
-# get api id and api hash from https://my.telegram.org/auth
-api_id = 12345
-api_hash = "0123456789"
-bot_token = "123456:ABC" # bot token from @BotFather
-app = Client("linkedbot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+app = Client("linkedbot", api_id=api_id, api_hash=api_hash, bot_token=bot_token, proxy=proxy)
 
 
 # functions
@@ -50,17 +46,19 @@ def validition_url(url):
 # get only text messages from private chats
 @app.on_message(filters.text & filters.private)
 async def message_handler(client : Client, message : Message):
+    # progrss message
+    msg = await message.reply("Processing ...", reply_to_message_id=message.id) 
     # check the url pattern
     text = message.text
     if not validition_url(text):
-        return await message.reply("Invalid Url !")
+        return await msg.edit("Invalid Url !")
     
     # get the video links of video
     try:
         links = get_video_links(text)
     except Exception as e:
         print(e)
-        return await message.reply("an error occurred !")
+        return await msg.edit("an error occurred !")
     # create inline url keyboard
     keyboard = InlineKeyboardMarkup(
         [[InlineKeyboardButton(f'link {indx+1}', url=link)] for indx, link in enumerate(links)]
@@ -68,7 +66,7 @@ async def message_handler(client : Client, message : Message):
     # make hyperlinks
     links = [f'[link {indx+1}]({link})' for indx, link in enumerate(links)]
     # output
-    await message.reply(", ".join(links), reply_markup=keyboard)
+    await msg.edit(", ".join(links), reply_markup=keyboard)
 
 
 if __name__ == "__main__":
