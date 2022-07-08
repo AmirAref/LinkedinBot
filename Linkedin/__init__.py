@@ -27,14 +27,15 @@ class Linkedin():
         
         # get post details
         post_detail = post_section.find('div', attrs={'class':'social-action-counts'})
-        # get count of likes
-        _likes = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_likes-text'})
-        post.likes = _likes.text.strip() if _likes else 0
-        # get count of comments
-        _comments = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_comments-text'})
-        post.comments = re.search('\d+', _comments.text.strip()).group() if _comments else 0 # extract the number
-        # convert to integer
-        post.likes, post.comments = int(post.likes), int(post.comments)
+        if post_detail:
+            # get count of likes
+            _likes = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_likes-text'})
+            post.likes = _likes.text.strip() if _likes else 0
+            # get count of comments
+            _comments = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_comments-text'})
+            post.comments = re.search('\d+', _comments.text.strip()).group() if _comments else 0 # extract the number
+            # convert to integer
+            post.likes, post.comments = int(post.likes), int(post.comments)
         
         # extract the post images
         _image_list = soup.find('ul', attrs={'class':'share-images'})
@@ -53,7 +54,7 @@ class Post:
     def __init__(self) -> None:
         self.url : str = None
         self.text : str = None
-        self.likes : int = None
-        self.comments : int = None
+        self.likes : int = ''
+        self.comments : int = ''
         self.images : list[str]= []
         self.videos : list[str]= []
