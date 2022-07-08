@@ -38,18 +38,16 @@ async def message_handler(client : Client, message : Message):
     # get the video links of video
     try:
         linkedin = Linkedin(text)
-        links = linkedin.get_post_data()
+        post = linkedin.get_post_data()
     except Exception as e:
         print(e)
         return await msg.edit("an error occurred !")
     # create inline url keyboard
     keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton(f'link {indx+1}', url=link)] for indx, link in enumerate(links)]
+        [[InlineKeyboardButton(f'video link {indx+1}', url=link)] for indx, link in enumerate(post.videos)]
     )
-    # make hyperlinks
-    links = [f'[link {indx+1}]({link})' for indx, link in enumerate(links)]
     # output
-    await msg.edit(", ".join(links), reply_markup=keyboard)
+    await msg.edit(post.text, reply_markup=keyboard)
 
 
 if __name__ == "__main__":
