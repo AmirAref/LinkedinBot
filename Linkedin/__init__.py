@@ -38,7 +38,7 @@ class Linkedin():
             post.likes, post.comments = int(post.likes), int(post.comments)
         
         # extract the post images
-        _image_list = soup.find('ul', attrs={'class':'share-images'})
+        _image_list = post_section.find('ul', attrs={'class':'share-images'})
         if _image_list:
             post.images = [item.find('img')['data-delayed-url'] for item in _image_list.find_all('li')]
         
