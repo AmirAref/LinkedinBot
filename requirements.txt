@@ -8,4 +8,5 @@ Pyrogram==2.0.30
 PySocks==1.7.1
 requests==2.28.1
 soupsieve==2.3.2.post1
+TgCrypto==1.2.3
 urllib3==1.26.10

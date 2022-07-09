@@ -73,4 +73,5 @@ async def message_handler(client : Client, message : Message):
 
 if __name__ == "__main__":
     # setup the bot
+    print("App Started !")
     app.run()
