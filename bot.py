@@ -2,6 +2,7 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto, Message
 from config import *
 from Linkedin import Linkedin
+from Linkedin.errors import *
 import re
 
 # configuration
@@ -45,9 +46,9 @@ async def message_handler(client : Client, message : Message):
     try:
         linkedin = Linkedin(text)
         post = linkedin.get_post_data()
-    except ValueError:
+    except PageNotFound:
         return await msg.edit("🌐 Page not found !")
-    except KeyError:
+    except PostNotFOund:
         return await msg.edit("❌ Post not found !")
     except Exception as e:
         print(e)

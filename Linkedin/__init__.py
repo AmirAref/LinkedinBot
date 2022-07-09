@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import re
+from .errors import *
 
 class Linkedin():
     def __init__(self, url : str) -> None:
@@ -13,13 +14,13 @@ class Linkedin():
         response = requests.get(self.url)
         # check status
         if response.status_code in range(400, 500):
-            raise ValueError("Page not found error !")
+            raise PageNotFound("Page not found error !")
         # parse the response
         soup = BeautifulSoup(response.content, "html.parser")
         post_section = soup.find('section', attrs={'class':'section'})
         # check the post section is exists
         if not post_section:
-            raise KeyError('post not exists !')
+            raise PostNotFOund('post not exists !')
         # create post object
         post = Post()
         # post text
