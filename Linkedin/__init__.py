@@ -31,10 +31,10 @@ class Linkedin():
         if post_detail:
             # get count of likes
             _likes = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_likes-text'})
-            post.likes = _likes.text.strip() if _likes else 0
+            post.likes = _likes.text.strip().replace(',', '') if _likes else 0
             # get count of comments
             _comments = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_comments-text'})
-            post.comments = re.search('\d+', _comments.text.strip()).group() if _comments else 0 # extract the number
+            post.comments = re.search('[\d,]+', _comments.text.strip()).group().replace(',', '') if _comments else 0 # extract the number
             # convert to integer
             post.likes, post.comments = int(post.likes), int(post.comments)
         

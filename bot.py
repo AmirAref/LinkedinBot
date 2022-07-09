@@ -55,7 +55,7 @@ async def message_handler(client : Client, message : Message):
         return await msg.edit("❗️ an error occurred !")
     # create inline keyboard
     _post_details = [
-        [InlineKeyboardButton(text=f"👍 {post.likes}", callback_data='.'), InlineKeyboardButton(text=f"💬 {post.comments}", callback_data='.'), ],
+        [InlineKeyboardButton(text=f"👍 {post.likes:,}", callback_data='.'), InlineKeyboardButton(text=f"💬 {post.comments:,}", callback_data='.'), ],
         ]
     keyboard = InlineKeyboardMarkup(_post_details)
     # output
