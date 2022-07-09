@@ -50,14 +50,18 @@ async def message_handler(client : Client, message : Message):
     _post_details = [
         [InlineKeyboardButton(text=f"👍 {post.likes}", callback_data='.'), InlineKeyboardButton(text=f"💬 {post.comments}", callback_data='.'), ],
         ]
-    _video_links = [[InlineKeyboardButton(f'video link {indx+1}', url=link)] for indx, link in enumerate(post.videos)]
-    keyboard = InlineKeyboardMarkup(_post_details + _video_links)
+    keyboard = InlineKeyboardMarkup(_post_details)
     # output
     output = await msg.edit(post.text, reply_markup=keyboard)
     
     # upload images
     if post.images:
         await client.send_media_group(message.chat.id, [InputMediaPhoto(image) for image in post.images], reply_to_message_id=output.id)
+
+    # upload videos
+    if post.videos:
+        # send only last one
+        await client.send_video(message.chat.id, post.videos[-1], reply_to_message_id=output.id)
 
 
 if __name__ == "__main__":
