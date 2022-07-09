@@ -24,6 +24,12 @@ def validition_url(url):
         return False
 
 
+# command handler
+@app.on_message(filters.text & filters.private & filters.command('start'))
+async def command_handler(client : Client, message : Message):
+    await message.reply('Hello my friend, Welcome to the bot.\n\njust send me the post link from Linkedin.com ! ')
+
+
 # message handler
 # get only text messages from private chats
 @app.on_message(filters.text & filters.private)
