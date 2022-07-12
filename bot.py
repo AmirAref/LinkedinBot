@@ -47,9 +47,9 @@ async def message_handler(client : Client, message : Message):
         linkedin = Linkedin(text)
         post = linkedin.get_post_data()
     except PageNotFound:
-        return await msg.edit("🌐 Page not found !")
-    except PostNotFOund:
-        return await msg.edit("❌ Post not found !")
+        return await msg.edit("🌐 The Page not found !")
+    except PostNotFound:
+        return await msg.edit("❌ The Post not found !\n🛡 maybe The Post is private for a specific community ( for a group or the user's connections )")
     except Exception as e:
         print(e)
         return await msg.edit("❗️ an error occurred !")

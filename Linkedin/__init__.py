@@ -17,10 +17,11 @@ class Linkedin():
             raise PageNotFound("Page not found error !")
         # parse the response
         soup = BeautifulSoup(response.content, "html.parser")
-        post_section = soup.find('section', attrs={'class':'section'})
         # check the post section is exists
+        post_section = soup.find('section', attrs={'class':'section'})
         if not post_section:
-            raise PostNotFOund('post not exists !')
+            raise PostNotFound('post not exists !')
+        
         # create post object
         post = Post()
         # post text
