@@ -56,7 +56,7 @@ class Post:
     def __init__(self) -> None:
         self.url : str = None
         self.text : str = None
-        self.likes : int = ''
-        self.comments : int = ''
+        self.likes : int = 0 
+        self.comments : int = 0
         self.images : list[str]= []
         self.videos : list[str]= []
