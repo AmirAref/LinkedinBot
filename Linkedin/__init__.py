@@ -9,7 +9,7 @@ class Linkedin():
         self.url = url
     
     # functions
-    def get_post_data(self):
+    def get_post_data(self, document_pages_limit : int = 15):
         #send request
         response = requests.get(self.url)
         # check status
@@ -43,6 +43,18 @@ class Linkedin():
         _image_list = post_section.find('ul', attrs={'class':'share-images'})
         if _image_list:
             post.images = [item.find('img')['data-delayed-url'] for item in _image_list.find_all('li')]
+        
+        # extract the document
+        _document = post_section.find(class_='share-native-document')
+        _document = _document.find('iframe') if _document else None
+        # extarct the images from document 
+        if _document:
+            _data = json.loads(_document['data-player-document-config'])
+            # check pages count
+            if _data['totalPageCount'] <= document_pages_limit :
+                # extract
+                post.images = [img['config']['src'] for img in _data['coverPages']]
+            
         
         # get the video links
         _json_data = post_section.find('video', attrs={'class':'video-js'})
