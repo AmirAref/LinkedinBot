@@ -56,6 +56,7 @@ async def message_handler(client : Client, message : Message):
     # create inline keyboard
     _post_details = [
         [InlineKeyboardButton(text=f"👍 {post.likes:,}", callback_data='.'), InlineKeyboardButton(text=f"💬 {post.comments:,}", callback_data='.'), ],
+        [InlineKeyboardButton(text='🌐 View on Linkedin', url=text)],
         ]
     keyboard = InlineKeyboardMarkup(_post_details)
     # output
