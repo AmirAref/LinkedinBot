@@ -72,7 +72,11 @@ async def message_handler(client : Client, message : Message):
         output = message
         caption = post.text
         # delete process msg
-        await msg.delete()
+        if (post.images or post.videos):
+            await msg.delete()
+        else:
+            # send only text
+            await msg.edit(post.text, reply_markup=keyboard)
     
     # upload images
     if post.images:
