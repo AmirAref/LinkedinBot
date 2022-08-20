@@ -60,17 +60,49 @@ async def message_handler(client : Client, message : Message):
         ]
     keyboard = InlineKeyboardMarkup(_post_details)
     # output
-    output = await msg.edit(post.text, reply_markup=keyboard)
+    caption = post.text
+    
+    # check limit characters
+    if len(caption) > 1024:
+        # send media and post text separately
+        output = await msg.edit(post.text, reply_markup=keyboard)
+        caption = None
+    else :
+        # send the text as caption under the media
+        output = message
+        caption = post.text
+        # delete process msg
+        await msg.delete()
     
     # upload images
     if post.images:
-        await client.send_media_group(message.chat.id, [InputMediaPhoto(image) for image in post.images], reply_to_message_id=output.id)
+        # first image with caption and keyboard
+        output = await client.send_photo(
+            chat_id=message.chat.id,
+            photo=post.images.pop(0),
+            caption=caption,
+            reply_markup=keyboard,
+            reply_to_message_id=output.id,
+        )
+        # other images as a group
+        try:
+            images = [InputMediaPhoto(image) for image in post.images[:-1]] + [InputMediaPhoto(post.images[-1], caption=caption)]
+        except IndexError:
+            # there is not any other image
+            images = []
+        await client.send_media_group(message.chat.id, images, reply_to_message_id=output.id)
 
     # upload videos
-    if post.videos:
+    elif post.videos:
         # send only last one
-        await client.send_video(message.chat.id, post.videos[-1], reply_to_message_id=output.id)
-
+        await client.send_video(
+            chat_id=message.chat.id,
+            video=post.videos[-1],
+            caption=caption,
+            reply_to_message_id=output.id,
+            reply_markup=keyboard,
+            )
+        
 
 if __name__ == "__main__":
     # setup the bot
