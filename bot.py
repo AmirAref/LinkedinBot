@@ -1,7 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto, Message
 from config import *
-from Linkedin import Linkedin
+from Linkedin import LinkedinPost
 from Linkedin.errors import *
 import re
 
@@ -44,8 +44,8 @@ async def message_handler(client : Client, message : Message):
     
     # get the video links of video
     try:
-        linkedin = Linkedin(text)
-        post = linkedin.get_post_data()
+        post = LinkedinPost(text)
+        post.get_post_data()
     except PageNotFound:
         return await msg.edit("🌐 The Page not found !")
     except PostNotFound:

@@ -1,12 +1,19 @@
 from bs4 import BeautifulSoup
 import requests
 import json
-import re
 from .errors import *
 
-class Linkedin():
+
+
+class LinkedinPost():
     def __init__(self, url : str) -> None:
         self.url = url
+        self.text : str = None
+        self.reactions : int = 0 
+        self.comments : int = 0
+        self.images : list[str]= []
+        self.document : Document = None
+        self.videos : list[str]= []
     
     # functions
     def get_post_data(self, document_pages_limit : int = 15):
@@ -17,58 +24,47 @@ class Linkedin():
             raise PageNotFound("Page not found error !")
         # parse the response
         soup = BeautifulSoup(response.content, "html.parser")
+        
         # check the post section is exists
-        post_section = soup.find('section', attrs={'class':'section'})
+        post_section = soup.find('article')
         if not post_section:
             raise PostNotFound('post not exists !')
         
-        # create post object
-        post = Post()
         # post text
-        post.text = post_section.find('p', attrs={'class':'share-update-card__update-text'}).text
+        self.text = post_section.find('p', class_='attributed-text-segment-list__content').text
         
         # get post details
-        post_detail = post_section.find('div', attrs={'class':'social-action-counts'})
+        post_detail = post_section.find('div', class_='main-feed-activity-card__social-actions')
         if post_detail:
-            # get count of likes
-            _likes = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_likes-text'})
-            post.likes = _likes.text.strip().replace(',', '') if _likes else 0
-            # get count of comments
-            _comments = post_detail.find(attrs={'data-tracking-control-name':'public_post_share-update_social-details_social-action-counts_comments-text'})
-            post.comments = re.search('[\d,]+', _comments.text.strip()).group().replace(',', '') if _comments else 0 # extract the number
-            # convert to integer
-            post.likes, post.comments = int(post.likes), int(post.comments)
-        
+            # get count of reactions and comments
+            _reactions = post_detail.find(attrs={'data-id':'social-actions__reactions'})
+            self.reactions = int(_reactions['data-num-reactions']) if _reactions else 0
+            _reactions = post_detail.find(attrs={'data-id':'social-actions__comments'})
+            self.comments = int(_reactions['data-num-comments']) if _reactions else 0
+            
         # extract the post images
-        _image_list = post_section.find('ul', attrs={'class':'share-images'})
+        _image_list = post_section.find('ul', attrs={'class':'feed-images-content'})
         if _image_list:
-            post.images = [item.find('img')['data-delayed-url'] for item in _image_list.find_all('li')]
+            self.images = [item['data-delayed-url'] for item in _image_list.find_all('img')]
         
         # extract the document
-        _document = post_section.find(class_='share-native-document')
-        _document = _document.find('iframe') if _document else None
+        _document = post_section.find('iframe', attrs={'data-id':'feed-paginated-document-content'})
         # extarct the images from document 
         if _document:
-            _data = json.loads(_document['data-player-document-config'])
-            # check pages count
-            if _data['totalPageCount'] <= document_pages_limit :
-                # extract
-                post.images = [img['config']['src'] for img in _data['coverPages']]
+            _document = json.loads(_document['data-native-document-config'])
+            # extract
+            self.document = Document()
+            self.document.title = _document['doc']['title']
+            self.document.images_list = [item['config']['src'] for item in _document['doc']['coverPages'][:document_pages_limit]]
             
         
         # get the video links
-        _json_data = post_section.find('video', attrs={'class':'video-js'})
+        _json_data = post_section.find('video')
         if _json_data:
-            _json_data = json.loads(_json_data['data-sources'])[1:]
-            post.videos = [item['src'] for item in _json_data]
-        # out
-        return post
+            _json_data = json.loads(_json_data['data-sources'])
+            self.videos = [item for item in _json_data]
 
-class Post:
+class Document:
     def __init__(self) -> None:
-        self.url : str = None
-        self.text : str = None
-        self.likes : int = 0 
-        self.comments : int = 0
-        self.images : list[str]= []
-        self.videos : list[str]= []
+        self.title : str = None
+        self.images_list : list[str] = []
