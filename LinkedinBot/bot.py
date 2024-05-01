@@ -13,12 +13,14 @@ from telegram.ext import (
     filters,
 )
 
-from LinkedinBot.config import bot_token
 from LinkedinBot.errors import PageNotFound, PostNotFound
 from LinkedinBot.linkedin.crawler import get_post_data
+from LinkedinBot.logger import get_logger
+from LinkedinBot.settings import settings
 from LinkedinBot.utils import validition_url
 
 # command handlers
+logger = get_logger()
 
 
 async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -133,10 +135,11 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 if __name__ == "__main__":
     # setup the bot
-    app = ApplicationBuilder().token(bot_token).build()
+    app = ApplicationBuilder().token(settings.bot_token).build()
 
     app.add_handler(CommandHandler(command="start", callback=start_handler))
     app.add_handler(
         MessageHandler(filters=filters.ChatType.PRIVATE, callback=download_handler)
     )
+    logger.info("Bot Started!")
     app.run_polling()
