@@ -20,7 +20,7 @@ to run the robot using docker, just run the docker compose with following comman
 docker compose up --build -d
 ```
 
-> [!TIP]
+> [!NOTE]
     the `-d` flag will run the container in deattached mode, so if you don't want this, remove it.
 
 
