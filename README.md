@@ -105,4 +105,4 @@ Distributed under the GPL-V3 License. See [`LICENSE`](./LICENSE) for more inform
 
 
 
-[repo-url]: https://github.com/AmirAref/linkedbot/issues
+[repo-url]: https://github.com/AmirAref/LinkedinBot/issues
