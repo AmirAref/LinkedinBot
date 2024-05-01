@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "linkedin-bot"
+version = "0.1.0"
+description = "a telegram bot to download media from linkedin.com"
+authors = ["Amir Aref <amiraref808@gmail.com>"]
+license = "GPL3"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4"
+bs4 = "^0.0.2"
+requests = "^2.31.0"
+tgcrypto = "^1.2.5"
+types-beautifulsoup4 = "^4.12.0.20240229"
+pydantic = "^2.7.1"
+python-telegram-bot = {extras = ["socks"], version = "^21.1.1"}
+pydantic-settings = "^2.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
