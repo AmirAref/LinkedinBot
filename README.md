@@ -35,6 +35,7 @@ poetry run python -m LinkedinBot.bot
 - [x] use poetry
 - [x] change the telegram-bot client (python-telegram-bot)
 - [ ] use pydantic settings (.env)
+- [ ] add logs
 - [ ] add Dockerfile
 - [ ] setup linter
 - [ ] add tests

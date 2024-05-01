@@ -72,28 +72,32 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # check limit charactersd
     if len(caption) > 1024:
         # send media and post text separately
-        output = await msg.edit_text(text=caption, reply_markup=keyboard)
+        output = msg = await msg.edit_text(text=caption, reply_markup=keyboard)
         caption = ""
     else:
         # send the text as caption under the media
         output = update.message
         # delete process msg
-        if post.images or post.videos:
+        if post.images or post.videos or post.document:
             await msg.delete()
         else:
             # send only text
             await msg.edit_text(text=caption, reply_markup=keyboard)
 
+    if not isinstance(output, Message):
+        return
+
     # upload images
-    if post.images and isinstance(output, Message):
+    if post.images:
         # first image with caption and keyboard
-        output = await context.bot.send_photo(
-            chat_id=update.message.chat_id,
-            photo=post.images.pop(0),
-            caption=caption,
-            reply_markup=keyboard,
-            reply_to_message_id=output.id,
-        )
+        if output is not msg:
+            output = await context.bot.send_photo(
+                chat_id=update.message.chat_id,
+                photo=post.images.pop(0),
+                caption=caption,
+                reply_markup=keyboard,
+                reply_to_message_id=output.id,
+            )
         # other images as a group
         try:
             images = [InputMediaPhoto(image) for image in post.images[:-1]] + [
@@ -107,11 +111,20 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
     # upload videos
-    elif post.videos and isinstance(output, Message):
-        # send only last one
+    elif post.videos:
+        # send only first one (best quality)
         await context.bot.send_video(
             chat_id=update.message.chat_id,
-            video=str(post.videos[-1].url),
+            video=str(post.videos[0].url),
+            caption=caption,
+            reply_to_message_id=output.id,
+            reply_markup=keyboard,
+        )
+    elif post.document:
+        # send only last one
+        await context.bot.send_document(
+            chat_id=update.message.chat_id,
+            document=str(post.document.url),
             caption=caption,
             reply_to_message_id=output.id,
             reply_markup=keyboard,
