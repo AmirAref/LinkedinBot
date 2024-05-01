@@ -27,15 +27,15 @@ you must to set up your custom configuration in the the [config.py](https://gith
 ## Run :
 finally run the program :
 ```bash
-poetry run python bot.py
+poetry run python -m LinkedinBot.bot
 ```
 
 
 ## TODO:
-- [ ] use poetry
+- [x] use poetry
+- [x] change the telegram-bot client (python-telegram-bot)
 - [ ] use pydantic settings (.env)
 - [ ] add Dockerfile
 - [ ] setup linter
 - [ ] add tests
 - [ ] use connection pooling
-- [ ] change the telegram-bot client

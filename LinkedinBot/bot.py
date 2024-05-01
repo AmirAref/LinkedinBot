@@ -1,88 +1,94 @@
-from pyrogram import filters
-from pyrogram.client import Client
-from pyrogram.types import (
+from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     InputMediaPhoto,
     Message,
+    Update,
+)
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
 )
 
-from LinkedinBot.linkedin import LinkedinPost
-from LinkedinBot.config import api_hash, api_id, bot_token, proxy
+from LinkedinBot.config import bot_token
 from LinkedinBot.errors import PageNotFound, PostNotFound
+from LinkedinBot.linkedin.crawler import get_post_data
 from LinkedinBot.utils import validition_url
 
-# configuration
-app = Client(
-    "linkedbot", api_id=api_id, api_hash=api_hash, bot_token=bot_token, proxy=proxy
-)
+# command handlers
 
 
-# command handler
-@app.on_message(filters.text & filters.private & filters.command("start"))
-async def command_handler(client: Client, message: Message):
-    await message.reply(
-        "Hello my friend, Welcome to the bot.\n\njust send me the post link from Linkedin.com ! "
+async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # progrss message
+    if update.message is None:
+        return
+    # welcome and help message
+    await update.message.reply_text(
+        text="Hello my friend, Welcome to the bot.\n\njust send me the post link from Linkedin.com ! "
     )
 
 
-# message handler
-# get only text messages from private chats
-@app.on_message(filters.text & filters.private)
-async def message_handler(client: Client, message: Message):
+async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # progrss message
-    msg = await message.reply("Processing ...", reply_to_message_id=message.id)
+    if update.message is None or update.message.text is None:
+        return
+
+    msg = await update.message.reply_text(
+        "Processing ...", reply_to_message_id=update.message.id
+    )
     # check the url pattern
-    text = message.text
-    if not validition_url(text):
-        return await msg.edit("Invalid Url !")
+    url = update.message.text
+    if not validition_url(url):
+        return await msg.edit_text(text="Invalid Url !")
 
     # get the video links of video
     try:
-        post = LinkedinPost(text)
-        post.get_post_data()
+        post = get_post_data(url=url)
     except PageNotFound:
-        return await msg.edit("🌐 The Page not found !")
+        return await msg.edit_text(text="🌐 The Page not found !")
     except PostNotFound:
-        return await msg.edit(
-            "❌ The Post not found !\n🛡 maybe The Post is private for a specific community ( for a group or the user's connections )"
+        return await msg.edit_text(
+            text="❌ The Post not found !\n🛡 maybe The Post is private for a specific community ( for a group or the user's connections )",
         )
     except Exception as e:
         print(e)
-        return await msg.edit("❗️ an error occurred !")
+        return await msg.edit_text(text="❗️ an error occurred !")
     # create inline keyboard
-    _post_details = [
+    keyboard = InlineKeyboardMarkup(
         [
-            InlineKeyboardButton(text=f"👍 {post.likes:,}", callback_data="."),
-            InlineKeyboardButton(text=f"💬 {post.comments:,}", callback_data="."),
-        ],
-        [InlineKeyboardButton(text="🌐 View on Linkedin", url=text)],
-    ]
-    keyboard = InlineKeyboardMarkup(_post_details)
-    # output
-    caption = post.text
+            [
+                InlineKeyboardButton(text=f"👍 {post.reactions:,}", callback_data="."),
+                InlineKeyboardButton(text=f"💬 {post.comments:,}", callback_data="."),
+            ],
+            [InlineKeyboardButton(text="🌐 View on Linkedin", url=url)],
+        ]
+    )
 
-    # check limit characters
+    # output
+    caption = post.text if post.text else ""
+    # check limit charactersd
     if len(caption) > 1024:
         # send media and post text separately
-        output = await msg.edit(post.text, reply_markup=keyboard)
-        caption = None
+        output = await msg.edit_text(text=caption, reply_markup=keyboard)
+        caption = ""
     else:
         # send the text as caption under the media
-        output = message
-        caption = post.text
+        output = update.message
         # delete process msg
         if post.images or post.videos:
             await msg.delete()
         else:
             # send only text
-            await msg.edit(post.text, reply_markup=keyboard)
+            await msg.edit_text(text=caption, reply_markup=keyboard)
 
     # upload images
-    if post.images:
+    if post.images and isinstance(output, Message):
         # first image with caption and keyboard
-        output = await client.send_photo(
-            chat_id=message.chat.id,
+        output = await context.bot.send_photo(
+            chat_id=update.message.chat_id,
             photo=post.images.pop(0),
             caption=caption,
             reply_markup=keyboard,
@@ -96,16 +102,16 @@ async def message_handler(client: Client, message: Message):
         except IndexError:
             # there is not any other image
             images = []
-        await client.send_media_group(
-            message.chat.id, images, reply_to_message_id=output.id
+        await context.bot.send_media_group(
+            chat_id=update.message.chat_id, media=images, reply_to_message_id=output.id
         )
 
     # upload videos
-    elif post.videos:
+    elif post.videos and isinstance(output, Message):
         # send only last one
-        await client.send_video(
-            chat_id=message.chat.id,
-            video=post.videos[-1],
+        await context.bot.send_video(
+            chat_id=update.message.chat_id,
+            video=str(post.videos[-1].url),
             caption=caption,
             reply_to_message_id=output.id,
             reply_markup=keyboard,
@@ -114,5 +120,10 @@ async def message_handler(client: Client, message: Message):
 
 if __name__ == "__main__":
     # setup the bot
-    print("App Started !")
-    app.run()
+    app = ApplicationBuilder().token(bot_token).build()
+
+    app.add_handler(CommandHandler(command="start", callback=start_handler))
+    app.add_handler(
+        MessageHandler(filters=filters.ChatType.PRIVATE, callback=download_handler)
+    )
+    app.run_polling()
