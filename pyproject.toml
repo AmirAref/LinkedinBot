@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "linkedin-bot"
+version = "0.1.0"
+description = "a telegram bot to download media from linkedin.com"
+authors = ["Amir Aref <amiraref808@gmail.com>"]
+license = "GPL3"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4"
+bs4 = "^0.0.2"
+pyrogram = "^2.0.106"
+requests = "^2.31.0"
+tgcrypto = "^1.2.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

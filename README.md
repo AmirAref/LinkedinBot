@@ -2,11 +2,11 @@
 a telegram robot that provides the details of the Linkedin.com posts
 
 ## Installation :
-clone the repository and go to the repo directory, then do as following : 
-  
+clone the repository and go to the repo directory, then do as following (you must have installed the [poetry](https://python-poetry.org/)):
+
 install the requirements :  
 ```bash
-pip install -r requirements.txt
+poetry install
 ```
 
 ## Configuartion :  
@@ -27,5 +27,15 @@ you must to set up your custom configuration in the the [config.py](https://gith
 ## Run :
 finally run the program :
 ```bash
-python bot.py
+poetry run python bot.py
 ```
+
+
+## TODO:
+- [ ] use poetry
+- [ ] use pydantic settings (.env)
+- [ ] add Dockerfile
+- [ ] setup linter
+- [ ] add tests
+- [ ] use connection pooling
+- [ ] change the telegram-bot client
