@@ -14,7 +14,7 @@ before running the robot, you must to set the environment variables in `.env` fi
 cp .env-sample .env
 ```
 
-## Run Method 1 (Docker) :
+## Run (Docker) :
 to run the robot using docker, just run the docker compose with following command (you must have installed the [docker](https://docs.docker.com/engine/install/)):
 ```bash
 docker compose up --build -d
@@ -23,6 +23,7 @@ docker compose up --build -d
 > [!NOTE]
     the `-d` flag will run the container in deattached mode, so if you don't want this, remove it.
 
+<!--
 
 ## Run Method 2 (Manually) :
 in this method you have install the dependencies and run the robot manually.
@@ -30,7 +31,7 @@ so first install the requirements using poetry (you must have installed the [poe
 ```bash
 poetry install
 ```
-<!-- - `api_id` and `api_hash` : get your api detail from https://my.telegram.org/auth
+< - `api_id` and `api_hash` : get your api detail from https://my.telegram.org/auth
 - `bot_token` : get your robot token from [@BotFather](https://t.me/BotFather) (or if you don't have, make one there)
 - `proxy` : the proxy is `None` by default but if you want to connect to the telegram with proxy, here is the proxy template that you can replace it with your data.
 ```python
@@ -41,13 +42,15 @@ poetry install
      "username": "username",
      "password": "password"
  }
- ``` -->
+ ``` 
  
 and then run the program :
 ```bash
 poetry run python -m LinkedinBot.bot
 ```
 <br>
+
+-->
 
 <!-- CONTRIBUTING -->
 
