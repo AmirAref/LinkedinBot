@@ -135,8 +135,21 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 if __name__ == "__main__":
     # setup the bot
-    app = ApplicationBuilder().token(settings.bot_token).build()
+    proxy_url = settings
+    # check proxy
+    if settings.proxy_url is None:
+        app = ApplicationBuilder().token(settings.bot_token)
+    else:
+        app = (
+            ApplicationBuilder()
+            .token(settings.bot_token)
+            .proxy(settings.proxy_url)
+            .get_updates_proxy(settings.proxy_url)
+        )
 
+    # build app
+    app = app.build()
+    # add bot handlers
     app.add_handler(CommandHandler(command="start", callback=start_handler))
     app.add_handler(
         MessageHandler(filters=filters.ChatType.PRIVATE, callback=download_handler)
