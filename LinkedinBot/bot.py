@@ -5,6 +5,7 @@ from telegram import (
     Message,
     Update,
 )
+from telegram.constants import ParseMode
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
@@ -48,7 +49,9 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # get the video links of video
     try:
+        logger.info(f"start getting data for post with url : {url}")
         post = get_post_data(url=url)
+        logger.info(f"post info received : {post}")
     except PageNotFound:
         return await msg.edit_text(text="🌐 The Page not found !")
     except PostNotFound:
@@ -89,47 +92,58 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not isinstance(output, Message):
         return
 
-    # upload images
-    if post.images:
-        # first image with caption and keyboard
-        if output is not msg:
-            output = await context.bot.send_photo(
+    try:
+        # upload images
+        if post.images:
+            # first image with caption and keyboard
+            if output is not msg:
+                output = await context.bot.send_photo(
+                    chat_id=update.message.chat_id,
+                    photo=post.images.pop(0),
+                    caption=caption,
+                    reply_markup=keyboard,
+                    reply_to_message_id=output.id,
+                )
+            # other images as a group
+            try:
+                images = [InputMediaPhoto(image) for image in post.images[:-1]] + [
+                    InputMediaPhoto(post.images[-1], caption=caption)
+                ]
+            except IndexError:
+                # there is not any other image
+                images = []
+            await context.bot.send_media_group(
                 chat_id=update.message.chat_id,
-                photo=post.images.pop(0),
-                caption=caption,
-                reply_markup=keyboard,
+                media=images,
                 reply_to_message_id=output.id,
             )
-        # other images as a group
-        try:
-            images = [InputMediaPhoto(image) for image in post.images[:-1]] + [
-                InputMediaPhoto(post.images[-1], caption=caption)
-            ]
-        except IndexError:
-            # there is not any other image
-            images = []
-        await context.bot.send_media_group(
-            chat_id=update.message.chat_id, media=images, reply_to_message_id=output.id
-        )
 
-    # upload videos
-    elif post.videos:
-        # send only first one (best quality)
-        await context.bot.send_video(
-            chat_id=update.message.chat_id,
-            video=str(post.videos[0].url),
-            caption=caption,
-            reply_to_message_id=output.id,
-            reply_markup=keyboard,
-        )
-    elif post.document:
-        # send only last one
-        await context.bot.send_document(
-            chat_id=update.message.chat_id,
-            document=str(post.document.url),
-            caption=caption,
-            reply_to_message_id=output.id,
-            reply_markup=keyboard,
+        # upload videos
+        elif post.videos:
+            # send only first one (best quality)
+            await context.bot.send_video(
+                chat_id=update.message.chat_id,
+                video=str(post.videos[0].url),
+                caption=caption,
+                reply_to_message_id=output.id,
+                reply_markup=keyboard,
+            )
+        elif post.document:
+            # send only last one
+            await context.bot.send_document(
+                chat_id=update.message.chat_id,
+                document=str(post.document.url),
+                caption=caption,
+                reply_to_message_id=output.id,
+                reply_markup=keyboard,
+            )
+    except Exception:
+        logger.exception("sending media raised error :")
+        await update.message.reply_text(
+            "⚙️ An error occurred while uploading media, please try again in a few moments. If this happens again, contact the [bot manufacturer](t.me/amir_720).",
+            reply_to_message_id=update.message.id,
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True,
         )
 
 
