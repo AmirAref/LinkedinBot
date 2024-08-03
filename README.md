@@ -1,3 +1,12 @@
+---
+title: Linkedin Bot
+emoji: 🐨
+colorFrom: indigo
+colorTo: yellow
+sdk: docker
+pinned: false
+---
+
 # Linkedin Bot
 a telegram robot that uploads media from the Linkedin.com posts into telegram.
 
