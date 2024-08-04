@@ -19,6 +19,7 @@ from LinkedinBot.linkedin.crawler import get_post_data
 from LinkedinBot.logger import get_logger
 from LinkedinBot.settings import settings
 from LinkedinBot.utils import validition_url
+import messages
 
 # command handlers
 logger = get_logger()
@@ -30,7 +31,9 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     # welcome and help message
     await update.message.reply_text(
-        text="Hello my friend, Welcome to the bot.\n\njust send me the post link from Linkedin.com ! "
+        text=messages.WELCOME_MESSAGE,
+        disable_web_page_preview=True,
+        parse_mode=ParseMode.MARKDOWN,
     )
 
 
@@ -40,7 +43,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     msg = await update.message.reply_text(
-        "Processing ...", reply_to_message_id=update.message.id
+        messages.WAITING_MESSAGE, reply_to_message_id=update.message.id
     )
     # check the url pattern
     url = update.message.text
@@ -53,14 +56,18 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         post = get_post_data(url=url)
         logger.info(f"post info received : {post}")
     except PageNotFound:
-        return await msg.edit_text(text="🌐 The Page not found !")
+        return await msg.edit_text(text=messages.PAGE_NOT_FOUND)
     except PostNotFound:
         return await msg.edit_text(
-            text="❌ The Post not found !\n🛡 maybe The Post is private for a specific community ( for a group or the user's connections )",
+            text=messages.POST_NOT_FOUND,
         )
-    except Exception as e:
-        print(e)
-        return await msg.edit_text(text="❗️ an error occurred !")
+    except Exception:
+        logger.exception("get post information raised an error : ")
+        return await msg.edit_text(
+            text=messages.UNHANDLED_ERROR_RAISED,
+            disable_web_page_preview=True,
+            parse_mode=ParseMode.MARKDOWN,
+        )
     # create inline keyboard
     keyboard = InlineKeyboardMarkup(
         [
@@ -68,7 +75,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 InlineKeyboardButton(text=f"👍 {post.reactions:,}", callback_data="."),
                 InlineKeyboardButton(text=f"💬 {post.comments:,}", callback_data="."),
             ],
-            [InlineKeyboardButton(text="🌐 View on Linkedin", url=url)],
+            [InlineKeyboardButton(text=messages.SEE_IN_LINKEDIN_BUTTON, url=url)],
         ]
     )
 
@@ -140,7 +147,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception:
         logger.exception("sending media raised error :")
         await update.message.reply_text(
-            "⚙️ An error occurred while uploading media, please try again in a few moments. If this happens again, contact the [bot manufacturer](t.me/amir_720).",
+            messages.UPLOAD_MEDIA_ERROR,
             reply_to_message_id=update.message.id,
             parse_mode=ParseMode.MARKDOWN,
             disable_web_page_preview=True,
