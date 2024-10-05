@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,database
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,database
 
+
+.vscode
+.vim
 ### Database ###
 *.accdb
 *.db

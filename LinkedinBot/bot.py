@@ -103,7 +103,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # upload images
         if post.images:
             # first image with caption and keyboard
-            if output is not msg:
+            if output is not msg and caption:
                 output = await context.bot.send_photo(
                     chat_id=update.message.chat_id,
                     photo=post.images.pop(0),

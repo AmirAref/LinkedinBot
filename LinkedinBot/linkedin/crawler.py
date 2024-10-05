@@ -31,9 +31,8 @@ def get_post_data(url: str):
 
     # post text
     post = Post(url=url)
-    post.text = post_section.find(
-        "p", class_="attributed-text-segment-list__content"
-    ).text
+    post_text = post_section.find("p", class_="attributed-text-segment-list__content")
+    post.text = post_text.text if post_text else ""
 
     # get post details
     logger.debug("get post details, reactions and comments count")
