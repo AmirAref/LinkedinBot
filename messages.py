@@ -1,9 +1,12 @@
 WELCOME_MESSAGE = """
-💭 Hello my friend, Welcome to the bot.
+💭 *Hello my friend, Welcome to the bot.*
 
 🔗 Just send me the post's link from Linkedin.com to download !
 
 ✨ if you find this bot useful, it will be great to give star to its [repository on github](https://github.com/AmirAref/LinkedinBot)
+
+🌱 *Support the Project*:  
+If you'd like to support the ongoing development and keep the bot running, you can donate anytime by typing /donate to see how you can contribute. Your support is appreciated!
 """
 
 WAITING_MESSAGE = "Processing ..."
