@@ -37,6 +37,18 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+async def donate_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # progrss message
+    if update.message is None:
+        return
+    # welcome and help message
+    await update.message.reply_text(
+        text=settings.donate_text,
+        disable_web_page_preview=True,
+        parse_mode=ParseMode.MARKDOWN,
+    )
+
+
 async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # progrss message
     if update.message is None or update.message.text is None:
@@ -172,6 +184,7 @@ if __name__ == "__main__":
     app = app.build()
     # add bot handlers
     app.add_handler(CommandHandler(command="start", callback=start_handler))
+    app.add_handler(CommandHandler(command="donate", callback=donate_handler))
     app.add_handler(
         MessageHandler(filters=filters.ChatType.PRIVATE, callback=download_handler)
     )
