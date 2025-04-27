@@ -2,20 +2,18 @@
 name = "linkedin-bot"
 version = "0.1.0"
 description = "a telegram bot to download media from linkedin.com"
-authors = [
-    { name = "Amir Aref", email = "amiraref808@gmail.com" }
-]
+authors = [{ name = "Amir Aref", email = "amiraref808@gmail.com" }]
+requires-python = ">=3.10"
 dependencies = [
-    "pydantic>=2.8.2",
-    "python-telegram-bot[socks]>=21.4",
-    "pydantic-settings>=2.3.4",
-    "requests>=2.32.3",
     "bs4>=0.0.2",
+    "pydantic>=2.8.2",
+    "pydantic-settings>=2.3.4",
+    "python-telegram-bot[socks]>=22.0",
+    "requests>=2.32.3",
 ]
-readme = "README.md"
-requires-python = ">= 3.10"
 
-[tool.rye]
-managed = true
-virtual = true
-dev-dependencies = []
+readme = "README.md"
+
+[tool.uv]
+package = false
+
